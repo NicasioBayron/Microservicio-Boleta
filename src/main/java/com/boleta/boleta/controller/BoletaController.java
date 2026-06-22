@@ -1,11 +1,15 @@
 package com.boleta.boleta.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.boleta.boleta.assemblers.BoletaAssembler;
 
 import com.boleta.boleta.model.Boleta;
 import com.boleta.boleta.service.BoletaService;
@@ -18,42 +22,56 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RestController
 @RequestMapping("/boletas")
 public class BoletaController {
-    @Autowired
-    private BoletaService boletaService;
+    private final BoletaService boletaService;
+    private final BoletaAssembler boletaAssembler;
+
+    public BoletaController(BoletaService boletaService, BoletaAssembler boletaAssembler) {
+        this.boletaService = boletaService;
+        this.boletaAssembler = boletaAssembler;
+    }
 
     @GetMapping
-    public ResponseEntity<List<Boleta>> getAll() {
-        log.info("Obteniendo todas las boletas");
-        return boletaService.getAll();
+    public CollectionModel<EntityModel<Boleta>> getAll() {
+        log.info("Obteniendo boletas");
+        List<EntityModel<Boleta>> boletas = boletaService.getAll().stream()
+                .map(boletaAssembler::toModel)
+                .collect(Collectors.toList());
+        CollectionModel<EntityModel<Boleta>> modelo = CollectionModel.of(boletas,
+                linkTo(methodOn(BoletaController.class).getAll()).withSelfRel());
+        modelo.add(linkTo(methodOn(BoletaController.class).create(null)).withRel("Crear boleta").withType("POST"));
+        return modelo;
     }
 
     @GetMapping("/{idBoleta}")
-    public ResponseEntity<Boleta> getById(@PathVariable Long idBoleta) {
+    public EntityModel<Boleta> getById(@PathVariable Long idBoleta) {
         log.info("Obteniendo boleta con id: " + idBoleta);
-        return boletaService.getById(idBoleta);
+        Boleta boleta = boletaService.getById(idBoleta);
+        EntityModel<Boleta> modelo = boletaAssembler.toModel(boleta);
+        modelo.add(linkTo(methodOn(BoletaController.class).getAll()).withRel("Todas las boletas").withType("GET"));
+        return modelo;
     }
 
     @PostMapping
-    public ResponseEntity<Boleta> create(@RequestBody Boleta boleta) {
+    public ResponseEntity<EntityModel<Boleta>> create(@RequestBody Boleta boleta) {
         log.info("Creando boleta");
-        return boletaService.create(boleta);
+        return ResponseEntity.ok(boletaAssembler.toModel(boletaService.create(boleta)));
     }
 
     @PutMapping("/{idBoleta}")
-    public ResponseEntity<Boleta> update(@PathVariable Long idBoleta, @RequestBody Boleta boleta) {
+    public ResponseEntity<EntityModel<Boleta>> update(@PathVariable Long idBoleta, @RequestBody Boleta boleta) {
         log.info("Actualizando boleta con id: " + idBoleta);
-        return boletaService.update(idBoleta, boleta);
+        return ResponseEntity.ok(boletaAssembler.toModel(boletaService.update(idBoleta, boleta)));
     }
 
     @DeleteMapping("/{idBoleta}")
-    public ResponseEntity<Boleta> delete(@PathVariable Long idBoleta) {
+    public ResponseEntity<EntityModel<Boleta>> delete(@PathVariable Long idBoleta) {
         log.info("Eliminando boleta con id: " + idBoleta);
-        return boletaService.delete(idBoleta);
+        boletaService.delete(idBoleta);
+        return ResponseEntity.noContent().build();
     }
 }
