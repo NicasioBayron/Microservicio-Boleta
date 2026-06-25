@@ -65,7 +65,6 @@ public class BoletaServiceTests {
         assertEquals(boletaDto.getIdPago(), result.getIdPago());
     }
 
-
     @Test
     void testUpdate() {
         // Prepare updated DTO
@@ -77,18 +76,17 @@ public class BoletaServiceTests {
         updatedDto.setMontoTotal(2380);
         updatedDto.setFechaEmision(LocalDateTime.now());
 
-        // Mock repository behavior
+        // Mockear comportamiento del repositorio
         when(boletaRepository.findById(1L)).thenReturn(Optional.of(boletaModel));
         when(boletaRepository.save(any(Boleta.class))).thenReturn(updatedDto.toModel());
 
         // Execute service update
         BoletaDTO result = boletaService.update(1L, updatedDto);
 
-        // Verify returned DTO has updated values
+        // Verificar que el DTO devuelto contiene los valores actualizados
         assertEquals(updatedDto.getIdPago(), result.getIdPago());
         assertEquals(updatedDto.getMontoTotal(), result.getMontoTotal());
     }
-
 
     @Test
     void testDelete() {
@@ -97,4 +95,3 @@ public class BoletaServiceTests {
         verify(boletaRepository, times(1)).deleteById(1L);
     }
 }
-

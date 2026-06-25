@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.boleta.boleta.DTO.BoletaDTO;
 import com.boleta.boleta.assemblers.BoletaAssembler;
+import com.boleta.boleta.model.Boleta;
 import com.boleta.boleta.service.BoletaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -87,8 +88,8 @@ public class BoletaControllerTests {
         when(boletaService.create(any(BoletaDTO.class))).thenReturn(boletaDtoResponse);
 
         mockMvc.perform(post("/boletas")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(boletaDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(boletaDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.montoNeto").value(1500))
                 .andExpect(jsonPath("$.montoTotal").value(1785))
@@ -100,8 +101,8 @@ public class BoletaControllerTests {
         when(boletaService.update(eq(1L), any(BoletaDTO.class))).thenReturn(boletaDtoResponse);
 
         mockMvc.perform(put("/boletas/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(boletaDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(boletaDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.montoNeto").value(1500))
                 .andExpect(jsonPath("$.montoTotal").value(1785))
