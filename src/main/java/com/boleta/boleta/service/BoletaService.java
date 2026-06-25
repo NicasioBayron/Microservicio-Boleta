@@ -2,10 +2,12 @@ package com.boleta.boleta.service;
 
 import org.springframework.stereotype.Service;
 
+import com.boleta.boleta.DTO.BoletaDTO;
 import com.boleta.boleta.model.Boleta;
 import com.boleta.boleta.repository.BoletaRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,31 +19,34 @@ public class BoletaService {
     @Autowired
     private BoletaRepository boletaRepository;
 
-    public List<Boleta> getAll() {
+    public List<BoletaDTO> getAll() {
         log.info("Obteniendo todas las boletas");
-        return boletaRepository.findAll();
+        return boletaRepository.findAll().stream()
+                .map(BoletaDTO::fromModel)
+                .collect(Collectors.toList());
     }
 
-    public Boleta getById(Long idBoleta) {
+    public BoletaDTO getById(Long idBoleta) {
         log.info("Obteniendo boleta con id: " + idBoleta);
-        return boletaRepository.findById(idBoleta).get();
+        return BoletaDTO.fromModel(boletaRepository.findById(idBoleta).get());
     }
 
-    public Boleta create(Boleta boleta) {
+    public BoletaDTO create(BoletaDTO boleta) {
         log.info("Creando boleta");
-        return boletaRepository.save(boleta);
+        Boleta boleta2 = boleta.toModel();
+        return BoletaDTO.fromModel(boletaRepository.save(boleta2));
     }
 
-    public Boleta update(Long idBoleta, Boleta boleta) {
+    public BoletaDTO update(Long idBoleta, BoletaDTO cambios) {
         log.info("Actualizando boleta con id: " + idBoleta);
-        Boleta boletaExistente = boletaRepository.findById(idBoleta).get();
-        boletaExistente.setIdPago(boleta.getIdPago());
-        boletaExistente.setIdUsuario(boleta.getIdUsuario());
-        boletaExistente.setMontoNeto(boleta.getMontoNeto());
-        boletaExistente.setImpuestoIva(boleta.getImpuestoIva());
-        boletaExistente.setMontoTotal(boleta.getMontoTotal());
-        boletaExistente.setFechaEmision(boleta.getFechaEmision());
-        return boletaRepository.save(boletaExistente);
+        Boleta boletaExistente = boletaRepository.findById(idBoleta).orElseThrow();
+        boletaExistente.setIdPago(cambios.getIdPago());
+        boletaExistente.setIdUsuario(cambios.getIdUsuario());
+        boletaExistente.setMontoNeto(cambios.getMontoNeto());
+        boletaExistente.setImpuestoIva(cambios.getImpuestoIva());
+        boletaExistente.setMontoTotal(cambios.getMontoTotal());
+        boletaExistente.setFechaEmision(cambios.getFechaEmision());
+        return BoletaDTO.fromModel(boletaRepository.save(boletaExistente));
     }
 
     public void delete(Long idBoleta) {

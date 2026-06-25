@@ -6,18 +6,19 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
+import com.boleta.boleta.DTO.BoletaDTO;
 import com.boleta.boleta.controller.BoletaController;
-import com.boleta.boleta.model.Boleta;
 
 @Component
-public class BoletaAssembler implements RepresentationModelAssembler<Boleta, EntityModel<Boleta>> {
-    @Override
-    public EntityModel<Boleta> toModel(Boleta boleta) {
-        return EntityModel.of(boleta,
-                linkTo(methodOn(BoletaController.class).getById(boleta.getIdBoleta())).withSelfRel(),
-                linkTo(methodOn(BoletaController.class).update(boleta.getIdBoleta(), boleta))
-                        .withRel("Actualizar boleta").withType("PUT"),
-                linkTo(methodOn(BoletaController.class).delete(boleta.getIdBoleta()))
-                        .withRel("Eliminar boleta").withType("DELETE"));
-    }
+public class BoletaAssembler implements RepresentationModelAssembler<BoletaDTO, EntityModel<BoletaDTO>> {
+        @Override
+        public EntityModel<BoletaDTO> toModel(BoletaDTO boletaDTO) {
+                return EntityModel.of(boletaDTO,
+                                linkTo(methodOn(BoletaController.class).getById(boletaDTO.getIdBoleta())).withSelfRel(),
+                                linkTo(methodOn(BoletaController.class).update(boletaDTO.getIdBoleta(),
+                                                boletaDTO))
+                                                .withRel("Actualizar boleta").withType("PUT"),
+                                linkTo(methodOn(BoletaController.class).delete(boletaDTO.getIdBoleta()))
+                                                .withRel("Eliminar boleta").withType("DELETE"));
+        }
 }

@@ -9,6 +9,8 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.boleta.boleta.DTO.BoletaDTO;
 import com.boleta.boleta.assemblers.BoletaAssembler;
 
 import com.boleta.boleta.model.Boleta;
@@ -36,40 +38,40 @@ public class BoletaController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<Boleta>> getAll() {
+    public CollectionModel<EntityModel<BoletaDTO>> getAll() {
         log.info("Obteniendo boletas");
-        List<EntityModel<Boleta>> boletas = boletaService.getAll().stream()
+        List<EntityModel<BoletaDTO>> boletas = boletaService.getAll().stream()
                 .map(boletaAssembler::toModel)
                 .collect(Collectors.toList());
-        CollectionModel<EntityModel<Boleta>> modelo = CollectionModel.of(boletas,
+        CollectionModel<EntityModel<BoletaDTO>> modelo = CollectionModel.of(boletas,
                 linkTo(methodOn(BoletaController.class).getAll()).withSelfRel());
         modelo.add(linkTo(methodOn(BoletaController.class).create(null)).withRel("Crear boleta").withType("POST"));
         return modelo;
     }
 
     @GetMapping("/{idBoleta}")
-    public EntityModel<Boleta> getById(@PathVariable Long idBoleta) {
+    public EntityModel<BoletaDTO> getById(@PathVariable Long idBoleta) {
         log.info("Obteniendo boleta con id: " + idBoleta);
-        Boleta boleta = boletaService.getById(idBoleta);
-        EntityModel<Boleta> modelo = boletaAssembler.toModel(boleta);
+        BoletaDTO boletaDTO = boletaService.getById(idBoleta);
+        EntityModel<BoletaDTO> modelo = boletaAssembler.toModel(boletaDTO);
         modelo.add(linkTo(methodOn(BoletaController.class).getAll()).withRel("Todas las boletas").withType("GET"));
         return modelo;
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<Boleta>> create(@RequestBody Boleta boleta) {
+    public ResponseEntity<EntityModel<BoletaDTO>> create(@RequestBody BoletaDTO boleta) {
         log.info("Creando boleta");
         return ResponseEntity.ok(boletaAssembler.toModel(boletaService.create(boleta)));
     }
 
     @PutMapping("/{idBoleta}")
-    public ResponseEntity<EntityModel<Boleta>> update(@PathVariable Long idBoleta, @RequestBody Boleta boleta) {
+    public ResponseEntity<EntityModel<BoletaDTO>> update(@PathVariable Long idBoleta, @RequestBody BoletaDTO boleta) {
         log.info("Actualizando boleta con id: " + idBoleta);
         return ResponseEntity.ok(boletaAssembler.toModel(boletaService.update(idBoleta, boleta)));
     }
 
     @DeleteMapping("/{idBoleta}")
-    public ResponseEntity<EntityModel<Boleta>> delete(@PathVariable Long idBoleta) {
+    public ResponseEntity<EntityModel<BoletaDTO>> delete(@PathVariable Long idBoleta) {
         log.info("Eliminando boleta con id: " + idBoleta);
         boletaService.delete(idBoleta);
         return ResponseEntity.noContent().build();
