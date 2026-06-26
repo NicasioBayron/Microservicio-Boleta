@@ -12,8 +12,8 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("API 2026 Provedores")
+                        .title("API 2026 Boletas")
                         .version("1.0")
-                        .description("Documentación de la API del microservicio de Provedores"));
+                        .description("Documentación de la API del microservicio de Boletas"));
     }
 }
